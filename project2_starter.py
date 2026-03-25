@@ -119,8 +119,8 @@ def get_listing_details(listing_id) -> dict:
         elif match2:
             policy_number = match2.group()
         else:
-            # try to capture any STR-like policy (even if invalid format)
-            raw = re.search(r"STR[-\d]+", text)
+            # try to capture any policy-like string (even invalid ones)
+            raw = re.search(r"(STR[-\d]+|\b\d{5,}\b)", text)
             if raw:
                 policy_number = raw.group()
             else:

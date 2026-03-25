@@ -172,7 +172,22 @@ def create_listing_database(html_path) -> list[tuple]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    basic = load_listing_results(html_path)
+    full = []
+
+    for title, listing_id in basic:
+        details = get_listing_details(listing_id)[listing_id]
+        full.append((
+            title,
+            listing_id,
+            details["policy_number"],
+            details["host_type"],
+            details["host_name"],
+            details["room_type"],
+            details["location_rating"]
+        ))
+
+    return full
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -195,7 +210,16 @@ def output_csv(data, filename) -> None:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    sorted_data = sorted(data, key=lambda x: x[-1], reverse=True)
+
+    with open(filename, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "Listing Title", "Listing ID", "Policy Number",
+            "Host Type", "Host Name", "Room Type", "Location Rating"
+        ])
+        for row in sorted_data:
+            writer.writerow(row)
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -218,7 +242,20 @@ def avg_location_rating_by_room_type(data) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    totals = {}
+    counts = {}
+
+    for row in data:
+        room_type = row[5]
+        rating = row[6]
+
+        if rating == 0.0:
+            continue
+
+        totals[room_type] = totals.get(room_type, 0) + rating
+        counts[room_type] = counts.get(room_type, 0) + 1
+
+    return {k: round(totals[k] / counts[k], 1) for k in totals}
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -239,7 +276,22 @@ def validate_policy_numbers(data) -> list[str]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    invalid = []
+
+    for row in data:
+        listing_id = row[1]
+        policy = row[2]
+
+        if policy in ["Pending", "Exempt"]:
+            continue
+
+        valid1 = re.fullmatch(r"20\d{2}-00\d{4}STR", policy)
+        valid2 = re.fullmatch(r"STR-000\d{4}", policy)
+
+        if not (valid1 or valid2):
+            invalid.append(listing_id)
+
+    return invalid
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -259,7 +311,19 @@ def google_scholar_searcher(query):
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    url = "https://scholar.google.com/scholar"
+    params = {"q": query}
+    res = requests.get(url, params=params)
+
+    soup = BeautifulSoup(res.text, "html.parser")
+    titles = []
+
+    for h3 in soup.find_all("h3"):
+        title = h3.get_text()
+        if title:
+            titles.append(title)
+
+    return titles
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================

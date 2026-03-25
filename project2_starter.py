@@ -1,7 +1,7 @@
 # SI 201 HW4 (Library Checkout System)
-# Your name:
-# Your student id:
-# Your email:
+# Your name:Henry Parker
+# Your student id: hfparker
+# Your email: hfparker@umich.edu
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
 # If you worked with generative AI also add a statement for how you used it.
 # e.g.:
@@ -41,7 +41,32 @@ def load_listing_results(html_path) -> list[tuple]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    with open(html_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    listings = []
+
+    cards = soup.find_all("a", href=True)
+    for a in cards:
+        href = a.get("href")
+        if "/rooms/" in href:
+            match = re.search(r"/rooms/(\d+)", href)
+            if match:
+                listing_id = match.group(1)
+                title_tag = a.find("div")
+                if title_tag:
+                    title = title_tag.get_text(strip=True)
+                    listings.append((title, listing_id))
+
+    # remove duplicates while preserving order
+    seen = set()
+    result = []
+    for t in listings:
+        if t[1] not in seen:
+            seen.add(t[1])
+            result.append(t)
+
+    return result
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
@@ -70,7 +95,63 @@ def get_listing_details(listing_id) -> dict:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    base_dir = os.path.dirname(__file__)
+    file_path = os.path.join(base_dir, "html_files", f"listing_{listing_id}.html")
+
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f, "html.parser")
+
+    text = soup.get_text(" ", strip=True)
+
+    # policy number
+    policy_number = "Pending"
+    if "exempt" in text.lower():
+        policy_number = "Exempt"
+    else:
+        match1 = re.search(r"20\d{2}-00\d{4}STR", text)
+        match2 = re.search(r"STR-000\d{4}", text)
+        if match1:
+            policy_number = match1.group()
+        elif match2:
+            policy_number = match2.group()
+
+    # host type
+    host_type = "Superhost" if "Superhost" in text else "regular"
+
+    # host name
+    host_name = ""
+    host_section = soup.find(string=re.compile("Hosted by"))
+    if host_section:
+        host_name = host_section.split("Hosted by")[-1].strip()
+
+    # room type
+    subtitle = soup.find("h2")
+    room_type = "Entire Room"
+    if subtitle:
+        sub_text = subtitle.get_text()
+        if "Private" in sub_text:
+            room_type = "Private Room"
+        elif "Shared" in sub_text:
+            room_type = "Shared Room"
+
+    # location rating
+    location_rating = 0.0
+    loc_match = re.search(r"Location[^0-9]*([0-9]\.?[0-9]?)", text)
+    if loc_match:
+        try:
+            location_rating = float(loc_match.group(1))
+        except:
+            location_rating = 0.0
+
+    return {
+        listing_id: {
+            "policy_number": policy_number,
+            "host_type": host_type,
+            "host_name": host_name,
+            "room_type": room_type,
+            "location_rating": location_rating
+        }
+    }
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================

@@ -12,12 +12,14 @@
 # --- ARGUMENTS & EXPECTED RETURN VALUES PROVIDED --- #
 # --- SEE INSTRUCTIONS FOR FULL DETAILS ON METHOD IMPLEMENTATION --- #
 
+from email.mime import text
+
 from bs4 import BeautifulSoup
 import re
 import os
 import csv
 import unittest
-import requests  # kept for extra credit parity
+#import requests  # kept for extra credit parity
 
 
 # IMPORTANT NOTE:
@@ -104,17 +106,25 @@ def get_listing_details(listing_id) -> dict:
     text = soup.get_text(" ", strip=True)
 
     # policy number
-    policy_number = "Pending"
+    policy_number = None
+
     if "exempt" in text.lower():
         policy_number = "Exempt"
     else:
         match1 = re.search(r"20\d{2}-00\d{4}STR", text)
         match2 = re.search(r"STR-000\d{4}", text)
+
         if match1:
             policy_number = match1.group()
         elif match2:
             policy_number = match2.group()
-
+        else:
+            # try to capture any STR-like policy (even if invalid format)
+            raw = re.search(r"STR[-\d]+", text)
+            if raw:
+                policy_number = raw.group()
+            else:
+                policy_number = "Pending"
     # host type
     host_type = "Superhost" if "Superhost" in text else "regular"
 
@@ -136,12 +146,12 @@ def get_listing_details(listing_id) -> dict:
 
     # location rating
     location_rating = 0.0
-    loc_match = re.search(r"Location[^0-9]*([0-9]\.?[0-9]?)", text)
-    if loc_match:
-        try:
-            location_rating = float(loc_match.group(1))
-        except:
-            location_rating = 0.0
+
+# find all float numbers like 4.9
+    all_ratings = re.findall(r"\b\d\.\d\b", text)
+
+    if all_ratings:
+        location_rating = float(all_ratings[0])
 
     return {
         listing_id: {
@@ -344,7 +354,7 @@ class TestCases(unittest.TestCase):
 
     def test_get_listing_details(self):
         html_list = ["467507", "1550913", "1944564", "4614763", "6092596"]
-
+        
         # TODO: Call get_listing_details() on each listing id above and save results in a list.
 
         # TODO: Spot-check a few known values by opening the corresponding listing_<id>.html files.
@@ -363,21 +373,20 @@ class TestCases(unittest.TestCase):
     def test_output_csv(self):
         out_path = os.path.join(self.base_dir, "test.csv")
 
-        # TODO: Call output_csv() to write the detailed_data to a CSV file.
-        # TODO: Read the CSV back in and store rows in a list.
+        output_csv(self.detailed_data, out_path)
+        with open(out_path, newline="", encoding="utf-8-sig") as csv_file:
+            rows = list(csv.reader(csv_file))
         # TODO: Check that the first data row matches ["Guesthouse in San Francisco", "49591060", "STR-0000253", "Superhost", "Ingrid", "Entire Room", "5.0"].
 
         os.remove(out_path)
 
     def test_avg_location_rating_by_room_type(self):
-        # TODO: Call avg_location_rating_by_room_type() and save the output.
-        # TODO: Check that the average for "Private Room" is 4.9.
-        pass
+        avg_ratings = avg_location_rating_by_room_type(self.detailed_data)
+        self.assertEqual(avg_ratings["Private Room"], 4.9)
 
     def test_validate_policy_numbers(self):
-        # TODO: Call validate_policy_numbers() on detailed_data and save the result into a variable invalid_listings.
-        # TODO: Check that the list contains exactly "16204265" for this dataset.
-        pass
+        invalid_listings = validate_policy_numbers(self.detailed_data)
+        self.assertEqual(invalid_listings, ["16204265"])
 
 
 def main():

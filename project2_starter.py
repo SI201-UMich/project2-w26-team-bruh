@@ -3,12 +3,14 @@
 # Your student id: hfparker
 # Your email: hfparker@umich.edu
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
+# i used chatgpt for debugging and for suggestions on code structure. I also used it to help me come up with regex patterns for parsing the policy numbers, and to brainstorm fallback strategies for handling edge cases in the policy number extraction logic.
 # If you worked with generative AI also add a statement for how you used it.
+# i used pycache aswell for indentation because i got frustrated.
 # e.g.:
 # Asked ChatGPT for hints on debugging and for suggestions on overall code structure
 #
 # Did your use of GenAI on this assignment align with your goals and guidelines in your Gen AI contract? If not, why?
-#
+#yes
 # --- ARGUMENTS & EXPECTED RETURN VALUES PROVIDED --- #
 # --- SEE INSTRUCTIONS FOR FULL DETAILS ON METHOD IMPLEMENTATION --- #
 

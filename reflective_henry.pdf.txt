@@ -1,0 +1,19 @@
+﻿Henry Parker
+
+
+Prompt 1: Do you think this current system provides adequate accountability around short-term rentals in San Francisco?
+
+
+I don’t think the current system around Airbnb regulation in San Francisco is fully effective. It looks good on paper since hosts are supposed to register and list a policy number, but in reality a lot of the enforcement depends on people actually checking and reporting violations. That creates gaps where listings can stay up even if they’re not compliant. Also, since hosts are entering their own policy numbers, there’s room for mistakes or even intentional misreporting. A better system would put more responsibility on Airbnb itself to verify listings, like automatically checking registration numbers against a city database. That would make the system more reliable and better align with ideas from the SWE Code of Ethics about building systems that people can trust.
+
+
+Prompt 2: Describe at least one factor you believe is important to consider when discussing the legality of web scraping and why.
+
+
+One thing that stood out to me when looking at the legality of web scraping is how unclear it is. Even if data is publicly available, that doesn’t necessarily mean you’re allowed to scrape it. Laws like the Computer Fraud and Abuse Act make it hard to tell where the line is between acceptable use and unauthorized access. I think this matters because it puts people in a weird position where scraping could be used for something beneficial, like holding companies accountable, but could still be legally risky.
+
+
+Prompt 3: Develop at least two guidelines you think are important to consider when deciding whether to do web scraping.
+
+
+I also think there need to be some clear guidelines for when web scraping is actually okay to do. First, there should be a clear purpose that benefits the public, not just collecting data because you can. Second, even if the data is public, you should avoid collecting or using information in a way that violates people’s privacy. Just because something is accessible doesn’t automatically make it ethical to use at scale. Overall, scraping can be useful, but it needs to be done carefully and with some responsibility.
